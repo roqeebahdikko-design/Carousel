@@ -69,7 +69,7 @@
 </html>
 <script>
 
-let imagesJSON = [];      
+let imagesBase = [];      
 let currentIndex = 0;
 
 
@@ -77,9 +77,9 @@ window.onload = function() {
     let saved = localStorage.getItem("carouselImages");
 
     if (saved) {
-        imagesJSON = JSON.parse(saved);
+        imagesBase = JSON.parse(saved);
 
-        if (imagesJSON.length > 0) {
+        if (imagesBase.length > 0) {
             currentIndex = 0;
             displayImage();
         }
@@ -92,16 +92,16 @@ function loadImages(event) {
         let reader = new FileReader();
 
         reader.onload = function () {
-            imagesJSON.push({
+            imagesBase.push({
                 name: file.name,
                 src: reader.result
             });
 
             
-            localStorage.setItem("carouselImages", JSON.stringify(imagesJSON));
+            localStorage.setItem("carouselImages", JSON.stringify(imagesBase));
 
             
-            if (imagesJSON.length === 1) {
+            if (imagesBase.length === 1) {
                 currentIndex = 0;
                 displayImage();
             }
@@ -112,23 +112,23 @@ function loadImages(event) {
 }
 
 function displayImage() {
-    if (imagesJSON.length === 0) {
+    if (imagesBase.length === 0) {
         document.getElementById("carouselImage").src = "";
         return;
     }
 
-    document.getElementById("carouselImage").src = imagesJSON[currentIndex].src;
+    document.getElementById("carouselImage").src = imagesBase[currentIndex].src;
 }
 
 function nextImage() {
   
-    currentIndex = (currentIndex + 1) % imagesJSON.length;
+    currentIndex = (currentIndex + 1) % imagesBase.length;
     displayImage();
 }
 
 function prevImage() {
 
-    currentIndex = (currentIndex - 1 + imagesJSON.length) % imagesJSON.length;
+    currentIndex = (currentIndex - 1 + imagesBase.length) % imagesBase.length;
     displayImage();
 }
 
@@ -140,15 +140,15 @@ function deleteImage() {
         return; 
     }
 
-  imagesJSON.splice(currentIndex, 1)
-  localStorage.setItem("carouselImages", JSON.stringify(imagesJSON));
+  imagesBase.splice(currentIndex, 1)
+  localStorage.setItem("carouselImages", JSON.stringify(imagesBase));
   
-  if (currentIndex >= imagesJSON.length) {
-        currentIndex = imagesJSON.length - 1; 
+  if (currentIndex >= imagesBase.length) {
+        currentIndex = imagesBase.length - 1; 
     }
 
    
-    if (imagesJSON.length === 0) {
+    if (imagesBase.length === 0) {
         document.getElementById("carouselImage").src = "";
         return;
     }
