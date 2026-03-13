@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Carousel</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <h2>Upload Your Pictures</h2>
+
+  <input type="file" multiple accept="image/*" onchange="loadImages(event)">
+
+  <div class="carousel">
+    <button onclick="prevImage()" class="btn-prev">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
+        <path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/>
+      </svg>
+    </button>
+
+    <img id="carouselImage" src="" alt="No Image" />
+
+    <button onclick="nextImage()" class="btn-next">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
+        <path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/>
+      </svg>
+    </button>
+    <button onclick="deleteImage()" class="btn-del">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
+        <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+      </svg>
+    </button>
+  </div>
+
+  <script src="js/carousel.js"></script>
+</body>
+</html>
