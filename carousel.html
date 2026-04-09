@@ -3,160 +3,354 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>carouselImages</title>
+  <title>Image Carousel</title>
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     body {
-  font-family: Arial;
-  text-align: center;
-  margin-top: 30px;
-}
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 30px 16px;
+      background: #f0f2f5;
+      min-height: 100vh;
+    }
 
-.carousel {
-  width: 400px;
-  height: 300px;
-  margin: 30px auto;
-  position: relative;
-  border: 3px solid #444;
-  border-radius: 10px;
-  overflow: hidden;
-}
+    h2 {
+      margin-bottom: 16px;
+      color: #222;
+    }
 
-.carousel img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.btn-prev, .btn-next, .btn-del{
-  position: absolute; 
-  bottom: 0; 
-  width: 45px;
-  height: 45px;
-  font-size: 30px;
-  border: none;
-  background: rgba(0,0,0,0.4);
-  color: white;
-  cursor: pointer;
-}
-.btn-prev {
-  left: 0;
-}
+    .upload-label {
+      display: inline-block;
+      cursor: pointer;
+      background: #4a90e2;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: background 0.2s;
+    }
 
-.btn-next {
-  right: 0;
-}
+    .upload-label:hover {
+      background: #357abd;
+    }
 
-.btn-del {
-  left: 50%;
-  transform: translateX(-50%);
-}
+    #fileInput {
+      display: none;
+    }
 
+    .carousel-wrapper {
+      margin: 24px auto 0;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .carousel {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      position: relative;
+      border: 3px solid #444;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #222;
+    }
+
+    /* Slide track holds all images side-by-side */
+    .slide-track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.4s ease;
+      will-change: transform;
+    }
+
+    .slide-track img {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Empty state */
+    .empty-state {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #aaa;
+      font-size: 15px;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .empty-state svg {
+      opacity: 0.4;
+    }
+
+    /* Nav buttons */
+    .btn-prev, .btn-next, .btn-del {
+      position: absolute;
+      bottom: 0;
+      width: 48px;
+      height: 48px;
+      border: none;
+      background: rgba(0, 0, 0, 0.45);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      padding: 0;
+    }
+
+    .btn-prev:hover, .btn-next:hover, .btn-del:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-prev:focus-visible, .btn-next:focus-visible, .btn-del:focus-visible {
+      outline: 2px solid #4a90e2;
+      outline-offset: -2px;
+    }
+
+    .btn-prev {
+      left: 0;
+      border-bottom-left-radius: 9px;
+    }
+
+    .btn-next {
+      right: 0;
+      border-bottom-right-radius: 9px;
+    }
+
+    .btn-del {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* Image counter badge */
+    .counter {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      font-size: 13px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      pointer-events: none;
+      display: none;
+    }
+
+    /* Dot indicators */
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #bbb;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      transition: background 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .dot.active {
+      background: #4a90e2;
+      transform: scale(1.3);
+    }
+
+    .dot:focus-visible {
+      outline: 2px solid #4a90e2;
+      outline-offset: 2px;
+    }
   </style>
 </head>
 <body>
-  <h2>Upload Your Pictures</h2>
-  
-<input type="file" multiple accept="image/*" onchange="loadImages(event)">
+  <h2>Image Carousel</h2>
 
-<div class="carousel">
-  <button onclick="prevImage()" class="btn-prev"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg></button>
+  <label class="upload-label" for="fileInput">
+    Upload Pictures
+  </label>
+  <input type="file" id="fileInput" multiple accept="image/*">
 
-  <img id="carouselImage" src="" alt="No Image" />
+  <div class="carousel-wrapper">
+    <div class="carousel" id="carousel">
+      <div class="slide-track" id="slideTrack" aria-live="polite"></div>
 
-  <button onclick="nextImage()" class="btn-next"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
-  <button onclick="deleteImage()" class="btn-del"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg></button>
-</div>
+      <div class="empty-state" id="emptyState">
+        <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#aaa">
+          <path d="M180-120q-24 0-42-18t-18-42v-600q0-24 18-42t42-18h600q24 0 42 18t18 42v600q0 24-18 42t-42 18H180Zm0-60h600v-600H180v600Zm56-97h489L578-473 446-302l-93-127-117 152Zm-56 97v-600 600Z"/>
+        </svg>
+        <span>Upload images to get started</span>
+      </div>
+
+      <span class="counter" id="counter" aria-live="polite"></span>
+
+      <button onclick="prevImage()" class="btn-prev" aria-label="Previous image">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>
+      </button>
+
+      <button onclick="nextImage()" class="btn-next" aria-label="Next image">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>
+      </button>
+
+      <button onclick="deleteImage()" class="btn-del" aria-label="Delete current image">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#FFFFFF"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+      </button>
+    </div>
+
+    <div class="dots" id="dots" role="tablist" aria-label="Image navigation"></div>
+  </div>
+
+  <script>
+    let imagesBase = [];
+    let currentIndex = 0;
+
+    const slideTrack = document.getElementById("slideTrack");
+    const emptyState = document.getElementById("emptyState");
+    const counter = document.getElementById("counter");
+    const dotsContainer = document.getElementById("dots");
+    const fileInput = document.getElementById("fileInput");
+
+    fileInput.addEventListener("change", loadImages);
+
+    window.onload = function () {
+      let saved = localStorage.getItem("carouselImages");
+      if (saved) {
+        imagesBase = JSON.parse(saved);
+        if (imagesBase.length > 0) {
+          currentIndex = 0;
+          rebuildSlides();
+        }
+      }
+    };
+
+    function loadImages(event) {
+      let files = event.target.files;
+      let pending = files.length;
+
+      // Read all files, then append in order
+      let loaded = new Array(pending);
+      Array.from(files).forEach(function (file, i) {
+        let reader = new FileReader();
+        reader.onload = function () {
+          loaded[i] = { name: file.name, src: reader.result };
+          pending--;
+          if (pending === 0) {
+            let wasEmpty = imagesBase.length === 0;
+            imagesBase = imagesBase.concat(loaded);
+            localStorage.setItem("carouselImages", JSON.stringify(imagesBase));
+            if (wasEmpty) currentIndex = 0;
+            rebuildSlides();
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Reset input so same files can be re-selected
+      fileInput.value = "";
+    }
+
+    function rebuildSlides() {
+      // Re-render the slide track from scratch
+      slideTrack.innerHTML = "";
+      dotsContainer.innerHTML = "";
+
+      if (imagesBase.length === 0) {
+        emptyState.style.display = "flex";
+        counter.style.display = "none";
+        slideTrack.style.transform = "translateX(0)";
+        return;
+      }
+
+      emptyState.style.display = "none";
+      counter.style.display = "block";
+
+      imagesBase.forEach(function (img, i) {
+        let el = document.createElement("img");
+        el.src = img.src;
+        el.alt = img.name;
+        slideTrack.appendChild(el);
+
+        let dot = document.createElement("button");
+        dot.className = "dot" + (i === currentIndex ? " active" : "");
+        dot.setAttribute("role", "tab");
+        dot.setAttribute("aria-label", "Image " + (i + 1));
+        dot.addEventListener("click", function () { goTo(i); });
+        dotsContainer.appendChild(dot);
+      });
+
+      updateView(false);
+    }
+
+    function updateView(animate) {
+      if (animate === false) {
+        slideTrack.style.transition = "none";
+      } else {
+        slideTrack.style.transition = "transform 0.4s ease";
+      }
+      slideTrack.style.transform = "translateX(-" + (currentIndex * 100) + "%)";
+
+      counter.textContent = (currentIndex + 1) + " / " + imagesBase.length;
+
+      let allDots = dotsContainer.querySelectorAll(".dot");
+      allDots.forEach(function (d, i) {
+        d.classList.toggle("active", i === currentIndex);
+        d.setAttribute("aria-selected", i === currentIndex ? "true" : "false");
+      });
+    }
+
+    function goTo(index) {
+      currentIndex = index;
+      updateView(true);
+    }
+
+    function nextImage() {
+      if (imagesBase.length === 0) return;
+      currentIndex = (currentIndex + 1) % imagesBase.length;
+      updateView(true);
+    }
+
+    function prevImage() {
+      if (imagesBase.length === 0) return;
+      currentIndex = (currentIndex - 1 + imagesBase.length) % imagesBase.length;
+      updateView(true);
+    }
+
+    function deleteImage() {
+      if (imagesBase.length === 0) return;
+      if (!confirm("Are you sure you want to delete this picture?")) return;
+
+      imagesBase.splice(currentIndex, 1);
+      localStorage.setItem("carouselImages", JSON.stringify(imagesBase));
+
+      if (currentIndex >= imagesBase.length) {
+        currentIndex = Math.max(0, imagesBase.length - 1);
+      }
+
+      rebuildSlides();
+    }
+
+    // Keyboard navigation
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") nextImage();
+      else if (e.key === "ArrowLeft") prevImage();
+    });
+  </script>
 </body>
 </html>
-<script>
-
-let imagesBase = [];      
-let currentIndex = 0;
-
-
-window.onload = function() {
-    let saved = localStorage.getItem("carouselImages");
-
-    if (saved) {
-        imagesBase = JSON.parse(saved);
-
-        if (imagesBase.length > 0) {
-            currentIndex = 0;
-            displayImage();
-        }
-    }
-};
-function loadImages(event) {
-    let files = event.target.files;
-
-    for (let file of files) {
-        let reader = new FileReader();
-
-        reader.onload = function () {
-            imagesBase.push({
-                name: file.name,
-                src: reader.result
-            });
-
-            
-            localStorage.setItem("carouselImages", JSON.stringify(imagesBase));
-
-            
-            if (imagesBase.length === 1) {
-                currentIndex = 0;
-                displayImage();
-            }
-        };
-
-        reader.readAsDataURL(file);
-    }
-}
-
-function displayImage() {
-    if (imagesBase.length === 0) {
-        document.getElementById("carouselImage").src = "";
-        return;
-    }
-
-    document.getElementById("carouselImage").src = imagesBase[currentIndex].src;
-}
-
-function nextImage() {
-  
-    currentIndex = (currentIndex + 1) % imagesBase.length;
-    displayImage();
-}
-
-function prevImage() {
-
-    currentIndex = (currentIndex - 1 + imagesBase.length) % imagesBase.length;
-    displayImage();
-}
-
-function deleteImage() {
-
-   let confirmDelete = confirm("Are you sure you want to delete this picture?");
-
-    if (!confirmDelete) {
-        return; 
-    }
-
-  imagesBase.splice(currentIndex, 1)
-  localStorage.setItem("carouselImages", JSON.stringify(imagesBase));
-  
-  if (currentIndex >= imagesBase.length) {
-        currentIndex = imagesBase.length - 1; 
-    }
-
-   
-    if (imagesBase.length === 0) {
-        document.getElementById("carouselImage").src = "";
-        return;
-    }
-
-   
-    displayImage();
-}
-  
-
-
-</script>
